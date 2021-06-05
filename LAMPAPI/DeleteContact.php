@@ -3,10 +3,7 @@
 
 	$inData = getRequestInfo();
 
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-
+	$id = $inData["id"];
 
 	$conn = new mysqli("localhost", "admin", "password", "COP4331");
 	if( $conn->connect_error )
@@ -15,8 +12,8 @@
 	}
 	else
 	{
-		$stmt = $conn->prepare("SELECT ID,FirstName,LastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+		$stmt = $conn->prepare("SELECT * FROM Contacts WHERE ID=?");
+		$stmt->bind_param("s", $id);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
@@ -24,9 +21,8 @@
 		if( $row = $result->fetch_assoc()  )
 		{
       $curID = $row['ID'];
-      $update = "UPDATE Users SET DateLastLoggedIn=CURRENT_TIMESTAMP where ID = '$curID'";
-      mysqli_query($conn, $update);
-			returnWithInfo( $row['FirstName'], $row['LastName'], $row['ID'] );
+      $delete = "DELETE FROM Contacts WHERE ID = '$curID'";
+      mysqli_query($conn, $delete);
 		}
 		else
 		{
@@ -56,10 +52,5 @@
 		sendResultInfoAsJson( $retValue );
 	}
 
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
 
 ?>
